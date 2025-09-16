@@ -1,0 +1,15 @@
+[package]
+name = "campus_coin"
+version = "1.0.0"
+authors = []
+
+[addresses]
+CampusCoin = "1077c516b7689bdf65e3b19e23703e292e02983712c1c57aaf9b65edccbd9108"
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-framework.git"
+rev = "mainnet"
+subdir = "aptos-framework"
+
+[dev-dependencies]
