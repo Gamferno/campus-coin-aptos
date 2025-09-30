@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Coin - Aptos DApp</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .welcome {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .welcome h2 {
+            color: #1890ff;
+            margin-bottom: 16px;
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, #ff7b7b 0%, #667eea 100%);
+            color: white;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #40a9ff;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+        }
+        
+        .btn-danger {
+            background: #ff4d4f;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .alert-success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+        
+        .alert-error {
+            background: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #ff4d4f;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .col {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🪙 Campus Coin</h1>
+        <div>
+            <button id="connectBtn" class="btn btn-primary">Connect Petra Wallet</button>
+            <button id="disconnectBtn" class="btn btn-danger hidden">Disconnect</button>
+            <span id="walletAddress" class="hidden"></span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Welcome Section -->
+        <div id="welcomeSection" class="card welcome">
+            <h2>Welcome to Campus Coin</h2>
+            <p>A decentralized application on the Aptos blockchain</p>
+            <p>Connect your Petra wallet to get started!</p>
+            <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+                <li>🔗 Connect with Petra Wallet</li>
+                <li>👑 Admin users can mint APT tokens</li>
+                <li>💸 Send APT to other addresses</li>
+                <li>📊 View real-time balance</li>
+            </ul>
+        </div>
+
+        <!-- User Dashboard -->
+        <div id="userSection" class="hidden">
+            <!-- Balance Display -->
+            <div class="card balance-card">
+                <h3>Your Balance</h3>
+                <h2 id="balanceAmount">0.0000 APT</h2>
+                <button id="refreshBalance" class="btn">🔄 Refresh</button>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="adminPanel" class="card hidden">
+                <h3>🔧 Admin Panel</h3>
+                <p>As an administrator, you can mint APT tokens to any user's address.</p>
+                
+                <div class="form-group">
+                    <label for="mintRecipient">Recipient Address</label>
+                    <input type="text" id="mintRecipient" class="form-control" 
+                           placeholder="0x1234567890abcdef...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="mintAmount">Amount (APT)</label>
+                    <input type="number" id="mintAmount" class="form-control" 
+                           placeholder="10.0" min="0" step="0.1">
+                </div>
+                
+                <button id="mintBtn" class="btn btn-primary">🪙 Mint Tokens</button>
+                <div id="mintResult" class="hidden"></div>
+            </div>
+
+            <!-- User Panel -->
+            <div id="userPanel" class="card">
+                <h3>💸 Send Campus Coins</h3>
+                <p>Send your APT tokens to another user's address.</p>
+                
+                <div class="form-group">
+                    <label for="sendRecipient">Recipient Address</label>
+                    <input type="text" id="sendRecipient" class="form-control" 
+                           placeholder="0x1234567890abcdef...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sendAmount">Amount (APT)</label>
+                    <input type="number" id="sendAmount" class="form-control" 
+                           placeholder="10.0" min="0" step="0.1">
+                </div>
+                
+                <button id="sendBtn" class="btn btn-primary">🚀 Send Tokens</button>
+                <div id="sendResult" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentAccount = null;
+        let isAdmin = false;
+        let balance = 0;
+        
+        // Admin addresses (you can modify this in backend/.env)
+        const ADMIN_ADDRESSES = ['0x1', '0x2'];
+        
+        // API base URL
+        const API_BASE = 'http://localhost:5000/api';
+        
+        // DOM elements
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const walletAddress = document.getElementById('walletAddress');
+        const welcomeSection = document.getElementById('welcomeSection');
+        const userSection = document.getElementById('userSection');
+        const adminPanel = document.getElementById('adminPanel');
+        const userPanel = document.getElementById('userPanel');
+        const balanceAmount = document.getElementById('balanceAmount');
+        const refreshBalance = document.getElementById('refreshBalance');
+        
+        // Check if Petra wallet is installed
+        function isPetraInstalled() {
+            return typeof window.aptos !== 'undefined';
+        }
+        
+        // Connect wallet
+        async function connectWallet() {
+            if (!isPetraInstalled()) {
+                alert('Petra wallet is not installed. Please install it from https://petra.app/');
+                return;
+            }
+            
+            try {
+                const response = await window.aptos.connect();
+                currentAccount = response.address;
+                updateUI();
+                checkAdminStatus();
+                fetchBalance();
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet. Make sure Petra is unlocked and you approve the connection.');
+            }
+        }
+        
+        // Disconnect wallet
+        async function disconnectWallet() {
+            try {
+                await window.aptos.disconnect();
+                currentAccount = null;
+                isAdmin = false;
+                balance = 0;
+                updateUI();
+            } catch (error) {
+                console.error('Failed to disconnect wallet:', error);
+            }
+        }
+        
+        // Update UI based on connection status
+        function updateUI() {
+            if (currentAccount) {
+                connectBtn.classList.add('hidden');
+                disconnectBtn.classList.remove('hidden');
+                walletAddress.classList.remove('hidden');
+                walletAddress.textContent = `${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)}`;
+                welcomeSection.classList.add('hidden');
+                userSection.classList.remove('hidden');
+                
+                if (isAdmin) {
+                    adminPanel.classList.remove('hidden');
+                } else {
+                    adminPanel.classList.add('hidden');
+                }
+            } else {
+                connectBtn.classList.remove('hidden');
+                disconnectBtn.classList.add('hidden');
+                walletAddress.classList.add('hidden');
+                welcomeSection.classList.remove('hidden');
+                userSection.classList.add('hidden');
+                adminPanel.classList.add('hidden');
+            }
+            
+            balanceAmount.textContent = `${balance.toFixed(4)} APT`;
+        }
+        
+        // Check if user is admin
+        async function checkAdminStatus() {
+            if (!currentAccount) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/aptos/admin/${currentAccount}`);
+                const data = await response.json();
+                isAdmin = data.isAdmin || ADMIN_ADDRESSES.includes(currentAccount.toLowerCase());
+                updateUI();
+            } catch (error) {
+                console.error('Failed to check admin status:', error);
+                // Fallback to local check
+                isAdmin = ADMIN_ADDRESSES.includes(currentAccount.toLowerCase());
+                updateUI();
+            }
+        }
+        
+        // Fetch balance
+        async function fetchBalance() {
+            if (!currentAccount) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/aptos/balance/${currentAccount}`);
+                const data = await response.json();
+                balance = data.balance || 0;
+                updateUI();
+            } catch (error) {
+                console.error('Failed to fetch balance:', error);
+                // Mock balance for demo when backend is not available
+                balance = Math.random() * 100;
+                updateUI();
+                alert('Backend not available. Showing simulated data for testing purposes.');
+            }
+        }
+        
+        // Mint tokens (admin only)
+        async function mintTokens() {
+            const recipient = document.getElementById('mintRecipient').value;
+            const amount = document.getElementById('mintAmount').value;
+            const resultDiv = document.getElementById('mintResult');
+            
+            if (!recipient || !amount) {
+                showResult(resultDiv, 'Please fill in all fields', 'error');
+                return;
+            }
+            
+            if (!recipient.match(/^0x[a-fA-F0-9]{1,64}$/)) {
+                showResult(resultDiv, 'Invalid address format', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/aptos/mint`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        recipient,
+                        amount: parseFloat(amount),
+                        admin: currentAccount
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(resultDiv, `Successfully minted ${amount} APT to ${recipient}`, 'success');
+                    document.getElementById('mintRecipient').value = '';
+                    document.getElementById('mintAmount').value = '';
+                    fetchBalance();
+                } else {
+                    showResult(resultDiv, data.error || 'Failed to mint tokens', 'error');
+                }
+            } catch (error) {
+                console.error('Mint error:', error);
+                showResult(resultDiv, 'Backend not available. This is a demo.', 'error');
+            }
+        }
+        
+        // Send tokens
+        async function sendTokens() {
+            const recipient = document.getElementById('sendRecipient').value;
+            const amount = document.getElementById('sendAmount').value;
+            const resultDiv = document.getElementById('sendResult');
+            
+            if (!recipient || !amount) {
+                showResult(resultDiv, 'Please fill in all fields', 'error');
+                return;
+            }
+            
+            if (!recipient.match(/^0x[a-fA-F0-9]{1,64}$/)) {
+                showResult(resultDiv, 'Invalid address format', 'error');
+                return;
+            }
+            
+            if (parseFloat(amount) > balance) {
+                showResult(resultDiv, 'Insufficient balance', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/aptos/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        recipient,
+                        amount: parseFloat(amount),
+                        sender: currentAccount
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(resultDiv, `Successfully sent ${amount} APT to ${recipient}`, 'success');
+                    document.getElementById('sendRecipient').value = '';
+                    document.getElementById('sendAmount').value = '';
+                    fetchBalance();
+                } else {
+                    showResult(resultDiv, data.error || 'Failed to send tokens', 'error');
+                }
+            } catch (error) {
+                console.error('Send error:', error);
+                showResult(resultDiv, 'Backend not available. This is a demo.', 'error');
+            }
+        }
+        
+        // Show result message
+        function showResult(element, message, type) {
+            element.className = `alert alert-${type}`;
+            element.textContent = message;
+            element.classList.remove('hidden');
+            
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // Event listeners
+        connectBtn.addEventListener('click', connectWallet);
+        disconnectBtn.addEventListener('click', disconnectWallet);
+        refreshBalance.addEventListener('click', fetchBalance);
+        document.getElementById('mintBtn').addEventListener('click', mintTokens);
+        document.getElementById('sendBtn').addEventListener('click', sendTokens);
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+            
+            // Check if already connected (this would work if Petra auto-connects)
+            setTimeout(() => {
+                if (isPetraInstalled() && window.aptos && window.aptos.isConnected) {
+                    window.aptos.account().then(account => {
+                        if (account) {
+                            currentAccount = account.address;
+                            updateUI();
+                            checkAdminStatus();
+                            fetchBalance();
+                        }
+                    }).catch(console.error);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
