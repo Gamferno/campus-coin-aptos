@@ -11,8 +11,8 @@ A full-stack decentralized application built on the Aptos blockchain that allows
 🔒 **Role-based Access**: Different interfaces for admins and regular users  
 
 ## Screenshots
-![[Pasted image 20250930205018.png]]
-![[Pasted image 20250930205104.png]]
+![Home Page](home_page.png)
+![Home_Page_Connected](home_page_connected.png)
 ## Tech Stack
 
 ### Frontend
