@@ -119,23 +119,6 @@ The app is configured for Aptos Devnet. To use Testnet or Mainnet:
 1. Update `APTOS_NETWORK` in backend `.env`
 2. Update network references in frontend if needed
 
-## Development Notes
-
-### Implementation Details
-This application demonstrates key concepts:
-- Real-time blockchain data integration
-- Role-based access control
-- Secure wallet connection patterns
-- RESTful API design for blockchain applications
-
-### Production Considerations
-For production deployment, consider:
-1. Custom Move smart contracts for advanced token operations
-2. Enhanced admin role management systems
-3. Comprehensive security audits
-4. Transaction confirmation handling
-5. Error recovery and retry mechanisms
-
 ## Troubleshooting
 
 ### Common Issues:
